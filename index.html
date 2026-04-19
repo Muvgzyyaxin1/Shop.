@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kagujje Shoe Center V8</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; }
+        img { width: 100%; border-radius: 4px; }
+        button { background: #007bff; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Kagujje Shoe Center V8</h1>
+    <div class="grid">
+        <div class="card">
+            <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600">
+            <h3>Leather Classic Loafers</h3>
+            <p>120,000 UGX</p>
+            <button onclick="order('Leather Classic Loafers', 120000)">Order via WhatsApp</button>
+        </div>
+        <div class="card">
+            <img src="https://images.unsplash.com/photo-1528701800489-20be3c3b9e2f?w=600">
+            <h3>Premium Heels</h3>
+            <p>95,000 UGX</p>
+            <button onclick="order('Premium Heels', 95000)">Order via WhatsApp</button>
+        </div>
+    </div>
+
+    <script>
+        function order(name, price) {
+            const msg = encodeURIComponent("I want to order: " + name + " (" + price + " UGX)");
+            window.open("https://wa.me/256709473045?text=" + msg);
+        }
+    </script>
+</body>
+</html>
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>kagujje-shoe-center</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+          </html>
