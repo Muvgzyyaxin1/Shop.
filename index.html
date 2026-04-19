@@ -50,3 +50,37 @@
     <script type="module" src="/src/main.jsx"></script>
   </body>
           </html>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  // PASTE YOUR COPIED CONFIG BELOW THIS LINE
+  const firebaseConfig = {
+    apiKey: "AIzaSyBhmFP9t3viEl7knr-2KqnA442pmcroIQA",
+    authDomain: "kagujje-shoe-center.firebaseapp.com",
+    projectId: "kagujje-shoe-center",
+    storageBucket: "kagujje-shoe-center.firebasestorage.app",
+    messagingSenderId: "622068902306",
+    appId: "1:622068902306:web:90edcf91678396574e6afb",
+    measurementId: "G-PQCMPY7XWS"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Simple Admin Function to change prices
+  window.updatePrice = async (shoeId, newPrice) => {
+    await setDoc(doc(db, "products", shoeId), {
+      price: newPrice
+    }, { merge: true });
+    alert("Price updated in Kampala!");
+    location.reload();
+  };
+</script>
+
+<div style="margin-top: 50px; border-top: 1px solid #ccc; padding: 20px; background: #f9f9f9;">
+  <h3>Shop Admin</h3>
+  <input type="number" id="newPrice" placeholder="New Price (UGX)">
+  <button onclick="updatePrice('loafers', document.getElementById('newPrice').value)">Update Loafers Price</button>
+</div>
