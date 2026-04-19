@@ -70,5 +70,13 @@
             alert("Price updated successfully!");
         };
     </script>
+    
+        <div id="admin-panel" style="margin-top: 50px; padding: 20px; background: #333; color: white; border-radius: 10px;">
+        <h2>Shop Admin (Management)</h2>
+        <p>Update price for Loafers:</p>
+        <input type="number" id="newPrice" style="width: 100%; padding: 10px; margin: 10px 0;" placeholder="Enter new price in UGX">
+        <button style="background: #28a745; color: white; padding: 10px; width: 100%; border: none; border-radius: 5px; cursor: pointer;" onclick="updatePrice('loafers', document.getElementById('newPrice').value)">Update Price Live</button>
+    </div>
+
 </body>
 </html>
