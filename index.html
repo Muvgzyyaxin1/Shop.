@@ -1,82 +1,171 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Kagujje Shoe Center V8</title>
+    <title>Kagujje Shoe Center V12</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: sans-serif; margin: 0; padding: 20px; background: #f4f4f4; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
-        .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
-        img { width: 100%; height: 200px; object-fit: cover; border-radius: 5px; }
-        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
-        #admin-panel { margin-top: 50px; padding: 20px; background: #333; color: white; border-radius: 10px; }
-        input { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f9; color: #333; }
+        header { background: #111; color: white; padding: 20px; text-align: center; }
+        .container { padding: 20px; max-width: 1000px; margin: auto; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+        .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; }
+        img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 6px; cursor: pointer; margin-top: 10px; font-weight: bold; }
+        .cart-btn { background: #28a745; color: white; }
+        .cart-floating { position: fixed; right: 20px; top: 20px; background: #000; color: #fff; padding: 10px 20px; border-radius: 50px; cursor: pointer; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .admin-box { background: #222; color: white; padding: 25px; margin-top: 50px; border-radius: 12px; }
+        input { width: 100%; padding: 10px; margin: 8px 0; border-radius: 5px; border: 1px solid #ccc; box-sizing: border-box; }
+        .review-item { background: #fff; padding: 10px; border-radius: 5px; margin-bottom: 10px; border-left: 4px solid #007bff; }
+        #admin-controls { display: none; } /* Hidden until login */
     </style>
 </head>
 <body>
 
-    <h1>Kagujje Shoe Center</h1>
-    
-    <div class="grid">
-        <div class="card">
-            <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772" alt="Loafers">
-            <h3>Leather Classic Loafers</h3>
-            <p id="loafers-price">120,000 UGX</p>
-            <button onclick="window.open('https://wa.me/256709473045?text=I%20want%20to%20order%20the%20Loafers')">Order via WhatsApp</button>
-        </div>
+<header>
+    <h1>Kagujje Shoe Center V12 🚀</h1>
+</header>
 
-        <div class="card">
-            <img src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2" alt="Heels">
-            <h3>Premium Heels</h3>
-            <p id="heels-price">95,000 UGX</p>
-            <button onclick="window.open('https://wa.me/256709473045?text=I%20want%20to%20order%20the%20Heels')">Order via WhatsApp</button>
-        </div>
+<div class="cart-floating" onclick="viewCart()">🛒 Cart (<span id="cart-count">0</span>)</div>
+
+<div class="container">
+    <div id="products" class="grid"></div>
+
+    <hr style="margin: 40px 0;">
+
+    <h2>⭐ Customer Reviews</h2>
+    <div id="reviews"></div>
+    <div style="background: white; padding: 15px; border-radius: 10px; margin-top: 10px;">
+        <input id="reviewText" placeholder="Write a review...">
+        <button class="cart-btn" onclick="addReview()" style="background: #007bff;">Post Review</button>
     </div>
 
-    <div id="admin-panel">
-        <h2>Shop Admin (Management)</h2>
-        <p>Update price for Loafers:</p>
-        <input type="number" id="newPrice" placeholder="Enter new price in UGX">
-        <button style="background: #28a745;" onclick="updatePrice('loafers', document.getElementById('newPrice').value)">Update Price Live</button>
+    <div class="admin-box">
+        <div id="login-section">
+            <h2>🔐 Admin Login</h2>
+            <p>Enter details to manage your stock</p>
+            <input id="adminEmail" type="email" placeholder="Email">
+            <input id="adminPassword" type="password" placeholder="Password">
+            <button onclick="login()" style="background: #444; color: white; border: 1px solid #666;">Login</button>
+        </div>
+
+        <div id="admin-controls">
+            <h2>🛠️ Add New Product</h2>
+            <input id="pName" placeholder="Product Name (e.g. Jordan 4)">
+            <input id="pPrice" type="number" placeholder="Price in UGX">
+            <input id="pImage" placeholder="Image Link (URL)">
+            <input id="pStock" placeholder="Stock Status (e.g. In Stock)">
+            <button onclick="addProduct()" style="background: #28a745; color: white;">Upload to Store</button>
+            <button onclick="logout()" style="background: #dc3545; color: white; margin-top: 20px; font-size: 12px;">Logout</button>
+        </div>
     </div>
+</div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBhmFP9t3viEl7knr-2KqnA442pmcroIQA",
-            authDomain: "kagujje-shoe-center.firebaseapp.com",
-            projectId: "kagujje-shoe-center",
-            storageBucket: "kagujje-shoe-center.firebasestorage.app",
-            messagingSenderId: "622068902306",
-            appId: "1:622068902306:web:90edcf91678396574e6afb",
-            measurementId: "G-PQCMPY7XWS"
-        };
+    // 1. YOUR FIREBASE CONFIG (REPLACE THIS)
+    const firebaseConfig = {
+        apiKey: "AIzaSyBhmFP9t3viEl7knr-2KqnA442pmcroIQA",
+        authDomain: "kagujje-shoe-center.firebaseapp.com",
+        projectId: "kagujje-shoe-center",
+        storageBucket: "kagujje-shoe-center.firebasestorage.app",
+        messagingSenderId: "622068902306",
+        appId: "1:622068902306:web:90edcf91678396574e6afb"
+    };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
 
-        // This part makes the price update INSTANTLY without refreshing
-        onSnapshot(doc(db, "products", "loafers"), (doc) => {
-            if (doc.exists()) {
-                document.getElementById('loafers-price').innerText = doc.data().price + " UGX";
-            }
+    // --- CART LOGIC ---
+    let cart = JSON.parse(localStorage.getItem("kagujje_cart")) || [];
+    const updateUI = () => document.getElementById("cart-count").innerText = cart.length;
+    updateUI();
+
+    window.addToCart = (name, price) => {
+        cart.push({ name, price });
+        localStorage.setItem("kagujje_cart", JSON.stringify(cart));
+        updateUI();
+        alert(name + " added to cart!");
+    };
+
+    window.viewCart = () => {
+        if (cart.length === 0) return alert("Cart is empty!");
+        let total = 0;
+        let text = "Hello Kagujje Shoe Center, I want to order:\n\n";
+        cart.forEach((item, i) => {
+            text += `${i+1}. ${item.name} - ${item.price} UGX\n`;
+            total += Number(item.price);
         });
+        text += `\nTotal: ${total} UGX`;
+        window.open(`https://wa.me/256709473045?text=${encodeURIComponent(text)}`);
+    };
 
-        window.updatePrice = async (id, price) => {
-            if(!price) return alert("Enter a price first!");
-            await setDoc(doc(db, "products", id), { price: price }, { merge: true });
-            alert("Price updated successfully!");
-        };
-    </script>
-    
-        <div id="admin-panel" style="margin-top: 50px; padding: 20px; background: #333; color: white; border-radius: 10px;">
-        <h2>Shop Admin (Management)</h2>
-        <p>Update price for Loafers:</p>
-        <input type="number" id="newPrice" style="width: 100%; padding: 10px; margin: 10px 0;" placeholder="Enter new price in UGX">
-        <button style="background: #28a745; color: white; padding: 10px; width: 100%; border: none; border-radius: 5px; cursor: pointer;" onclick="updatePrice('loafers', document.getElementById('newPrice').value)">Update Price Live</button>
-    </div>
+    // --- AUTH LOGIC ---
+    window.login = async () => {
+        const email = document.getElementById("adminEmail").value;
+        const pass = document.getElementById("adminPassword").value;
+        try {
+            await signInWithEmailAndPassword(auth, email, pass);
+        } catch (e) { alert("Login Error: " + e.message); }
+    };
 
+    window.logout = () => signOut(auth);
+
+    onAuthStateChanged(auth, user => {
+        if (user) {
+            document.getElementById("login-section").style.display = "none";
+            document.getElementById("admin-controls").style.display = "block";
+        } else {
+            document.getElementById("login-section").style.display = "block";
+            document.getElementById("admin-controls").style.display = "none";
+        }
+    });
+
+    // --- DATABASE LOGIC ---
+    const productDiv = document.getElementById("products");
+    onSnapshot(collection(db, "products"), snap => {
+        productDiv.innerHTML = "";
+        snap.forEach(doc => {
+            const p = doc.data();
+            productDiv.innerHTML += `
+                <div class="card">
+                    <img src="${p.image}" alt="shoe">
+                    <h3>${p.name}</h3>
+                    <p><b>${Number(p.price).toLocaleString()} UGX</b></p>
+                    <p style="color: gray; font-size: 0.9em;">${p.stock}</p>
+                    <button class="cart-btn" onclick="addToCart('${p.name}', '${p.price}')">Add to Cart</button>
+                </div>`;
+        });
+    });
+
+    window.addProduct = async () => {
+        await addDoc(collection(db, "products"), {
+            name: document.getElementById("pName").value,
+            price: document.getElementById("pPrice").value,
+            image: document.getElementById("pImage").value,
+            stock: document.getElementById("pStock").value
+        });
+        alert("Product Uploaded!");
+    };
+
+    const reviewDiv = document.getElementById("reviews");
+    onSnapshot(collection(db, "reviews"), snap => {
+        reviewDiv.innerHTML = "";
+        snap.forEach(doc => {
+            reviewDiv.innerHTML += `<div class="review-item"><b>Customer:</b> ${doc.data().text}</div>`;
+        });
+    });
+
+    window.addReview = async () => {
+        const text = document.getElementById("reviewText").value;
+        if (!text) return;
+        await addDoc(collection(db, "reviews"), { text });
+        document.getElementById("reviewText").value = "";
+    };
+
+</script>
 </body>
 </html>
