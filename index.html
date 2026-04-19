@@ -4,83 +4,71 @@
     <title>Kagujje Shoe Center V8</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body { font-family: sans-serif; padding: 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-        .card { border: 1px solid #ddd; padding: 15px; border-radius: 8px; }
-        img { width: 100%; border-radius: 4px; }
-        button { background: #007bff; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 4px; }
+        body { font-family: sans-serif; margin: 0; padding: 20px; background: #f4f4f4; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+        .card { background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
+        img { width: 100%; height: 200px; object-fit: cover; border-radius: 5px; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; }
+        #admin-panel { margin-top: 50px; padding: 20px; background: #333; color: white; border-radius: 10px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; }
     </style>
 </head>
 <body>
-    <h1>Kagujje Shoe Center V8</h1>
+
+    <h1>Kagujje Shoe Center</h1>
+    
     <div class="grid">
         <div class="card">
-            <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600">
+            <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772" alt="Loafers">
             <h3>Leather Classic Loafers</h3>
-            <p>120,000 UGX</p>
-            <button onclick="order('Leather Classic Loafers', 120000)">Order via WhatsApp</button>
+            <p id="loafers-price">120,000 UGX</p>
+            <button onclick="window.open('https://wa.me/256709473045?text=I%20want%20to%20order%20the%20Loafers')">Order via WhatsApp</button>
         </div>
+
         <div class="card">
-            <img src="https://images.unsplash.com/photo-1528701800489-20be3c3b9e2f?w=600">
+            <img src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2" alt="Heels">
             <h3>Premium Heels</h3>
-            <p>95,000 UGX</p>
-            <button onclick="order('Premium Heels', 95000)">Order via WhatsApp</button>
+            <p id="heels-price">95,000 UGX</p>
+            <button onclick="window.open('https://wa.me/256709473045?text=I%20want%20to%20order%20the%20Heels')">Order via WhatsApp</button>
         </div>
     </div>
 
-    <script>
-        function order(name, price) {
-            const msg = encodeURIComponent("I want to order: " + name + " (" + price + " UGX)");
-            window.open("https://wa.me/256709473045?text=" + msg);
-        }
+    <div id="admin-panel">
+        <h2>Shop Admin (Management)</h2>
+        <p>Update price for Loafers:</p>
+        <input type="number" id="newPrice" placeholder="Enter new price in UGX">
+        <button style="background: #28a745;" onclick="updatePrice('loafers', document.getElementById('newPrice').value)">Update Price Live</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBhmFP9t3viEl7knr-2KqnA442pmcroIQA",
+            authDomain: "kagujje-shoe-center.firebaseapp.com",
+            projectId: "kagujje-shoe-center",
+            storageBucket: "kagujje-shoe-center.firebasestorage.app",
+            messagingSenderId: "622068902306",
+            appId: "1:622068902306:web:90edcf91678396574e6afb",
+            measurementId: "G-PQCMPY7XWS"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // This part makes the price update INSTANTLY without refreshing
+        onSnapshot(doc(db, "products", "loafers"), (doc) => {
+            if (doc.exists()) {
+                document.getElementById('loafers-price').innerText = doc.data().price + " UGX";
+            }
+        });
+
+        window.updatePrice = async (id, price) => {
+            if(!price) return alert("Enter a price first!");
+            await setDoc(doc(db, "products", id), { price: price }, { merge: true });
+            alert("Price updated successfully!");
+        };
     </script>
 </body>
 </html>
-
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>kagujje-shoe-center</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
-          </html>
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getFirestore, doc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-  // PASTE YOUR COPIED CONFIG BELOW THIS LINE
-  const firebaseConfig = {
-    apiKey: "AIzaSyBhmFP9t3viEl7knr-2KqnA442pmcroIQA",
-    authDomain: "kagujje-shoe-center.firebaseapp.com",
-    projectId: "kagujje-shoe-center",
-    storageBucket: "kagujje-shoe-center.firebasestorage.app",
-    messagingSenderId: "622068902306",
-    appId: "1:622068902306:web:90edcf91678396574e6afb",
-    measurementId: "G-PQCMPY7XWS"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // Simple Admin Function to change prices
-  window.updatePrice = async (shoeId, newPrice) => {
-    await setDoc(doc(db, "products", shoeId), {
-      price: newPrice
-    }, { merge: true });
-    alert("Price updated in Kampala!");
-    location.reload();
-  };
-</script>
-
-<div style="margin-top: 50px; border-top: 1px solid #ccc; padding: 20px; background: #f9f9f9;">
-  <h3>Shop Admin</h3>
-  <input type="number" id="newPrice" placeholder="New Price (UGX)">
-  <button onclick="updatePrice('loafers', document.getElementById('newPrice').value)">Update Loafers Price</button>
-</div>
